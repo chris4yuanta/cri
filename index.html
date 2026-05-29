@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRI Profile v2.2 — 資安治理評估（課堂版）</title>
+<style>
+/* System font fallbacks - no external dependency */
+:root {
+  --font-sans: 'Microsoft JhengHei', '微軟正黑體', 'PingFang TC', '蘋方-繁', 'Noto Sans TC', 'Helvetica Neue', Arial, sans-serif;
+  --font-serif: 'Georgia', 'Times New Roman', '標楷體', serif;
+  --font-mono: 'Courier New', 'Consolas', 'SF Mono', monospace;
+}
+</style>
+<style>
+:root{
+  --bg:#0d1526;
+  --bg2:#152035;
+  --bg3:#1c2d45;
+  --card:#1a2c42;
+  --card2:#203350;
+  --gold:#d4a94e;
+  --gold2:#f0cc7a;
+  --gold3:#8a6c2a;
+  --text:#e8f0f8;
+  --text2:#b0c8dc;
+  --text3:#7a98b4;
+  --border:#2e4a6a;
+  --border2:#3a5878;
+  --green:#3dd68c;
+  --orange:#f5a623;
+  --red:#f05050;
+  --blue:#5294e0;
+  --purple:#a07ae0;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-sans);min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(212,169,78,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(212,169,78,.05) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0;}
+
+/* ══ SHARED ══ */
+.page{display:none;position:relative;z-index:1;}
+.page.active{display:block;}
+.center-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+
+/* ══ PASSWORD ══ */
+.pw-box{background:var(--card);border:1px solid var(--border2);border-radius:8px;padding:48px 52px;width:100%;max-width:440px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.5);}
+.pw-logo{font-family:var(--font-mono);font-size:10px;letter-spacing:3px;color:var(--gold);margin-bottom:6px;}
+.pw-title{font-family:var(--font-serif);font-size:26px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.pw-sub{font-size:13px;color:var(--text2);margin-bottom:32px;line-height:1.6;}
+.pw-field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;text-align:left;}
+.pw-field label{font-family:var(--font-mono);font-size:10px;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;font-weight:500;}
+.pw-field input{background:var(--bg3);border:1px solid var(--border2);border-radius:3px;padding:11px 14px;color:var(--text);font-size:14px;font-family:var(--font-sans);outline:none;transition:border-color .2s;width:100%;}
+.pw-field input:focus{border-color:var(--gold);box-shadow:0 0 0 2px rgba(212,169,78,.2);}
+.pw-field select:focus{border-color:var(--gold);box-shadow:0 0 0 2px rgba(212,169,78,.2);outline:none;}
+.pw-field select option{background:var(--bg3);color:var(--text);}
+.pw-field input::placeholder{color:var(--text3);}
+.pw-err{font-size:12px;color:var(--red);margin-bottom:10px;min-height:18px;font-weight:500;}
+.pw-hint{font-size:11px;color:var(--text3);margin-top:16px;}
+
+/* ══ LAYOUT ══ */
+.shell{display:grid;grid-template-columns:268px 1fr;min-height:100vh;}
+.sidebar{background:#0a1420;border-right:1px solid var(--border2);position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column;}
+.sb-brand{padding:24px 20px 18px;border-bottom:1px solid var(--border);}
+.sb-logo{display:flex;align-items:center;gap:9px;margin-bottom:8px;}
+.sb-mark{width:30px;height:30px;background:var(--gold);border-radius:2px;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:10px;font-weight:700;color:#0d1526;flex-shrink:0;}
+.sb-logotext{font-family:var(--font-mono);font-size:10px;color:var(--gold);letter-spacing:1px;line-height:1.5;}
+.sb-title{font-family:var(--font-serif);font-size:13px;color:var(--text);font-weight:600;margin-bottom:2px;}
+.sb-sub{font-size:10px;color:var(--text2);}
+.sb-progress{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;}
+.ring-wrap{position:relative;width:48px;height:48px;flex-shrink:0;}
+.ring-wrap svg{transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:var(--border2);stroke-width:4;}
+.ring-fill{fill:none;stroke:var(--gold);stroke-width:4;stroke-linecap:round;stroke-dasharray:126;stroke-dashoffset:126;transition:stroke-dashoffset .5s ease;}
+.ring-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:11px;font-weight:600;color:var(--gold);}
+.sb-prog-info .lbl{font-size:11px;color:var(--text2);margin-bottom:2px;}
+.sb-prog-info .val{font-family:var(--font-mono);font-size:13px;color:var(--text);font-weight:500;}
+.sb-nav{padding:12px 0;flex:1;}
+.fn-item{display:flex;align-items:center;gap:9px;padding:10px 20px;cursor:pointer;transition:background .15s;border-left:3px solid transparent;}
+.fn-item:hover{background:var(--bg3);}
+.fn-item.active{background:var(--card2);border-left-color:var(--gold);}
+.fn-item.done{opacity:.7;}
+.fn-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.fn-item-label{flex:1;}
+.fn-item-code{font-family:var(--font-mono);font-size:9px;color:var(--text3);letter-spacing:.5px;}
+.fn-item-zh{font-size:12px;color:var(--text);font-weight:500;}
+.fn-check{font-size:12px;color:var(--green);opacity:0;transition:opacity .2s;}
+.fn-item.done .fn-check{opacity:1;}
+.fn-cnt{font-family:var(--font-mono);font-size:9px;color:var(--text2);background:var(--bg3);padding:2px 6px;border-radius:2px;}
+.sb-footer{padding:14px 20px;border-top:1px solid var(--border);font-family:var(--font-mono);font-size:8px;color:var(--text3);letter-spacing:1px;line-height:1.7;}
+
+/* ══ MAIN QUESTION ══ */
+.main{overflow-y:auto;}
+.q-screen{display:none;flex-direction:column;height:100%;}
+.q-screen.active{display:flex;}
+.fn-header{padding:18px 44px;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:14px;position:sticky;top:0;background:var(--bg);z-index:10;}
+.fn-badge{padding:5px 13px;border-radius:2px;font-family:var(--font-mono);font-size:10px;letter-spacing:1.5px;font-weight:600;white-space:nowrap;}
+.fn-hinfo{flex:1;}
+.fn-htitle{font-family:var(--font-serif);font-size:18px;font-weight:700;color:var(--text);}
+.fn-hsub{font-family:var(--font-mono);font-size:9px;color:var(--text2);margin-top:3px;letter-spacing:.5px;}
+.fn-pips{display:flex;gap:5px;}
+.pip{width:7px;height:7px;border-radius:50%;background:var(--border2);transition:all .2s;}
+.pip.done{background:var(--gold);}
+.pip.cur{background:var(--gold);box-shadow:0 0 7px var(--gold);}
+.q-body{flex:1;padding:36px 48px;overflow-y:auto;}
+.q-wrap{max-width:700px;}
+.q-step{font-family:var(--font-mono);font-size:10px;color:var(--text2);letter-spacing:2px;margin-bottom:8px;text-transform:uppercase;}
+.q-pid{font-family:var(--font-mono);font-size:12px;color:var(--gold);margin-bottom:6px;font-weight:500;}
+.q-name{font-family:var(--font-serif);font-size:22px;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.4;}
+.q-stmt{font-size:14px;color:var(--text2);line-height:1.85;margin-bottom:28px;padding:16px 20px;background:var(--card);border-left:3px solid var(--gold);border-radius:0 4px 4px 0;}
+.resp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:32px;}
+.resp-btn{display:flex;align-items:center;gap:10px;padding:13px 16px;border:1px solid var(--border2);border-radius:4px;cursor:pointer;transition:all .15s;background:var(--card);text-align:left;width:100%;font-family:var(--font-sans);}
+.resp-btn:hover{border-color:var(--gold);background:var(--card2);}
+.resp-btn.sel{border-color:var(--gold);background:var(--card2);box-shadow:0 0 0 2px rgba(212,169,78,.3);}
+.resp-icon{width:28px;height:28px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;font-family:var(--font-mono);font-weight:700;}
+.opt-yes .resp-icon{background:#1a4a2e;color:var(--green);}
+.opt-yesrb .resp-icon{background:#1a2f5a;color:var(--blue);}
+.opt-yescc .resp-icon{background:#2a1a4a;color:var(--purple);}
+.opt-partial .resp-icon{background:#4a3000;color:var(--orange);}
+.opt-no .resp-icon{background:#4a1a1a;color:var(--red);}
+.opt-nt .resp-icon{background:#3a3000;color:#d4c040;}
+.opt-idk .resp-icon{background:var(--bg3);color:var(--text2);}
+.opt-na .resp-icon{background:var(--bg2);color:var(--text3);}
+.resp-val{font-size:13px;color:var(--text);font-weight:600;}
+.resp-sub{font-size:11px;color:var(--text2);margin-top:2px;}
+.q-nav{display:flex;align-items:center;gap:10px;padding:16px 48px;border-top:1px solid var(--border2);background:var(--bg);}
+.q-dots{flex:1;display:flex;gap:5px;align-items:center;}
+.q-dot{width:7px;height:7px;border-radius:50%;background:var(--border2);transition:all .2s;}
+.q-dot.answered{background:var(--gold3);}
+.q-dot.cur{background:var(--gold);transform:scale(1.4);}
+
+/* ══ BUTTONS ══ */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border-radius:3px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;border:none;font-family:var(--font-sans);}
+.btn-primary{background:var(--gold);color:#0d1526;font-weight:700;}
+.btn-primary:hover{background:var(--gold2);transform:translateY(-1px);box-shadow:0 4px 18px rgba(212,169,78,.4);}
+.btn-ghost{background:var(--card);color:var(--text2);border:1px solid var(--border2);}
+.btn-ghost:hover{border-color:var(--gold);color:var(--text);background:var(--card2);}
+.btn-skip{background:var(--bg2);color:var(--text2);padding:10px 14px;font-size:11px;border:1px solid var(--border);}
+.btn-skip:hover{color:var(--text);border-color:var(--border2);}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+
+/* ══ RESULTS ══ */
+.results-page{padding:40px 52px 72px;max-width:920px;margin:0 auto;}
+.r-hero{text-align:center;padding:32px 0 28px;margin-bottom:36px;border-bottom:2px solid var(--border2);}
+.r-org{font-family:var(--font-mono);font-size:12px;color:var(--text2);letter-spacing:1px;margin-bottom:18px;}
+.r-score{font-family:var(--font-mono);font-size:64px;font-weight:300;color:var(--gold);line-height:1;}
+.r-score sup{font-size:22px;color:var(--gold3);vertical-align:super;}
+.r-score-sub{font-size:12px;color:var(--text2);margin-top:6px;margin-bottom:16px;}
+.r-badge{display:inline-block;padding:6px 20px;border-radius:3px;font-family:var(--font-mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;font-weight:600;}
+.rb-yes{background:#1a4a2e;color:var(--green);border:1px solid #2a6040;}
+.rb-yesrb{background:#1a2f5a;color:var(--blue);border:1px solid #2a4878;}
+.rb-yescc{background:#2a1a4a;color:var(--purple);border:1px solid #3a2860;}
+.rb-partial{background:#4a3000;color:var(--orange);border:1px solid #6a4800;}
+.rb-no{background:#4a1a1a;color:var(--red);border:1px solid #6a2828;}
+.rb-nt{background:#3a3000;color:#d4c040;border:1px solid #5a4800;}
+.rb-idk{background:var(--card);color:var(--text2);border:1px solid var(--border2);}
+.rb-na{background:var(--bg2);color:var(--text3);border:1px solid var(--border);}
+.rbadge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:2px;font-family:var(--font-mono);font-size:9px;font-weight:600;white-space:nowrap;letter-spacing:.3px;}
+.r-summary{max-width:520px;margin:0 auto;font-size:14px;color:var(--text2);line-height:1.8;}
+.r-section-title{font-family:var(--font-serif);font-size:17px;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:10px;font-weight:700;}
+.r-section-title::after{content:'';flex:1;height:1px;background:var(--border2);}
+.fn-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px;}
+.fn-card{background:var(--card);border:1px solid var(--border2);border-radius:5px;padding:16px;position:relative;overflow:hidden;}
+.fn-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--fc,var(--gold));}
+.fn-card-name{font-size:11px;color:var(--text2);margin-bottom:8px;font-weight:600;}
+.fn-card-score{font-family:var(--font-mono);font-size:26px;font-weight:300;color:var(--text);margin-bottom:4px;}
+.fn-card-score span{font-size:13px;color:var(--text3);}
+.fn-bar-wrap{background:var(--bg2);border-radius:2px;height:4px;overflow:hidden;margin-bottom:6px;}
+.fn-bar{height:100%;border-radius:2px;background:var(--fc,var(--gold));transition:width 1s ease;}
+.fn-card-meta{font-family:var(--font-mono);font-size:9px;color:var(--text2);letter-spacing:.3px;}
+.chart-box{background:var(--card);border:1px solid var(--border2);border-radius:5px;padding:24px;margin-bottom:24px;text-align:center;}
+.chart-title{font-family:var(--font-serif);font-size:15px;color:var(--text);margin-bottom:16px;text-align:left;font-weight:700;}
+.dtbl{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:20px;}
+.dtbl th{text-align:left;padding:9px 13px;background:var(--card2);color:var(--gold);font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;border-bottom:2px solid var(--border2);}
+.dtbl td{padding:9px 13px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;line-height:1.5;}
+.dtbl tr:hover td{background:var(--card);color:var(--text);}
+.sep{height:1px;background:var(--border2);margin:28px 0;}
+
+/* ══ DASHBOARD ══ */
+.dash-page{padding:40px 52px 72px;}
+.dash-header{text-align:center;margin-bottom:40px;}
+.dash-title{font-family:var(--font-serif);font-size:30px;font-weight:700;color:var(--text);margin-bottom:8px;}
+.dash-sub{font-size:13px;color:var(--text2);}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:32px;}
+.stat-card{background:var(--card);border:1px solid var(--border2);border-radius:5px;padding:18px;text-align:center;}
+.stat-num{font-family:var(--font-mono);font-size:30px;color:var(--gold);font-weight:300;display:block;margin-bottom:4px;}
+.stat-lbl{font-size:12px;color:var(--text2);font-weight:500;}
+.ranking-table{width:100%;border-collapse:collapse;margin-bottom:28px;}
+.ranking-table th{text-align:left;padding:10px 16px;background:var(--card2);color:var(--gold);font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;border-bottom:2px solid var(--border2);}
+.ranking-table td{padding:11px 16px;border-bottom:1px solid var(--border);color:var(--text2);font-size:13px;vertical-align:middle;}
+.ranking-table tr:hover td{background:var(--card);color:var(--text);}
+.rank-num{font-family:var(--font-mono);font-size:20px;color:var(--text2);font-weight:300;width:48px;}
+.rank-1 .rank-num{color:var(--gold);font-weight:600;}
+.rank-2 .rank-num{color:#b0c0d0;}
+.rank-3 .rank-num{color:#cd8040;}
+.rank-bar-cell{width:200px;}
+.rank-bar-wrap{background:var(--bg2);border-radius:3px;height:8px;overflow:hidden;}
+.rank-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--gold3),var(--gold));transition:width 1s ease;}
+.rank-score{font-family:var(--font-mono);font-size:14px;color:var(--text);font-weight:600;text-align:right;width:80px;}
+.rank-pct{font-family:var(--font-mono);font-size:11px;color:var(--text2);text-align:right;width:56px;}
+.my-row td{background:var(--card2);color:var(--text);}
+.my-row .rank-score{color:var(--gold);}
+.fn-avg-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px;}
+.fn-avg-card{background:var(--card);border:1px solid var(--border2);border-radius:5px;padding:16px;position:relative;overflow:hidden;}
+.fn-avg-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--fc,var(--gold));}
+.fn-avg-name{font-size:11px;color:var(--text2);margin-bottom:10px;font-weight:600;}
+.fn-avg-vals{display:flex;align-items:baseline;gap:8px;margin-bottom:8px;}
+.my-avg{font-family:var(--font-mono);font-size:24px;color:var(--gold);font-weight:400;}
+.my-avg span{font-size:11px;color:var(--text3);}
+.peer-avg{font-family:var(--font-mono);font-size:13px;color:var(--text2);}
+.peer-avg small{font-size:10px;}
+.fn-avg-bars{display:flex;flex-direction:column;gap:5px;}
+.avg-bar-row{display:flex;align-items:center;gap:8px;font-size:10px;font-family:var(--font-mono);}
+.avg-bar-label{width:28px;color:var(--text2);font-weight:600;}
+.avg-bar-bg{flex:1;background:var(--bg2);border-radius:2px;height:6px;overflow:hidden;}
+.avg-bar-my{height:100%;border-radius:2px;background:var(--gold);transition:width 1s ease;}
+.avg-bar-peer{height:100%;border-radius:2px;background:var(--text3);transition:width 1s ease;}
+.legend-row{display:flex;gap:18px;align-items:center;margin-bottom:16px;font-size:12px;color:var(--text2);font-weight:500;}
+.legend-dot{width:12px;height:5px;border-radius:2px;display:inline-block;}
+.dot-me{background:var(--gold);}
+.dot-peer{background:var(--text3);}
+.dash-nav{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;}
+
+/* ══ MISC ══ */
+.wait-box{text-align:center;padding:40px 0;}
+.wait-spinner{width:40px;height:40px;border:3px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.wait-text{font-family:var(--font-mono);font-size:12px;color:var(--text2);letter-spacing:1px;}
+
+@media(max-width:768px){
+  .shell{grid-template-columns:1fr;}
+  .sidebar{display:none;}
+  .fn-header,.q-body,.q-nav,.results-page,.dash-page{padding-left:20px;padding-right:20px;}
+  .fn-cards,.fn-avg-grid,.stat-row{grid-template-columns:repeat(2,1fr);}
+  .resp-grid{grid-template-columns:1fr;}
+}
+@media print{
+  .sidebar,.q-screen,.btn,.pw-page,.dash-nav{display:none!important;}
+  .results-page{display:block!important;}
+  body{background:white;color:black;}
+  body::before{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ PAGE 1: PASSWORD ══ -->
+<div class="page active" id="pw-page">
+  <div class="center-wrap">
+    <div class="pw-box">
+      <div class="pw-logo">CRI PROFILE v2.2 · CLASSROOM EDITION</div>
+      <div class="pw-title">資安治理評估體驗版</div>
+      <div class="pw-sub">請輸入課堂密碼與您的基本資料以進入評估系統</div>
+      <div class="pw-field">
+        <label>課堂密碼</label>
+        <input type="password" id="pw-input" placeholder="請輸入密碼" onkeydown="if(event.key==='Enter')tryLogin()">
+      </div>
+      <div class="pw-field">
+        <label>您的代號（匿名顯示於比較報告）</label>
+        <input type="text" id="pw-alias" placeholder="例：參與者A、金融機構甲…" maxlength="12">
+      </div>
+      <div class="pw-field">
+        <label>機構類型（請下拉選取）</label>
+        <select id="pw-orgtype" style="background:var(--bg3);border:1px solid var(--border2);border-radius:3px;padding:11px 14px;color:var(--text);font-size:14px;font-family:var(--font-sans);outline:none;transition:border-color .2s;width:100%;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23d4a94e' d='M6 8L1 3h10z'/%3E%3C/svg%3E&quot;);background-repeat:no-repeat;background-position:right 14px center;">
+          <option value="" disabled selected>— 請選擇 —</option>
+          <option value="金控">金控</option>
+          <option value="銀行">銀行</option>
+          <option value="證券">證券</option>
+          <option value="人壽">人壽</option>
+          <option value="投信">投信</option>
+          <option value="期貨">期貨</option>
+          <option value="產險">產險</option>
+          <option value="投顧">投顧</option>
+          <option value="其他">其他</option>
+        </select>
+      </div>
+      <div class="pw-err" id="pw-err"></div>
+      <button class="btn btn-primary" onclick="tryLogin()" style="width:100%;padding:13px;font-size:14px;justify-content:center;">進入評估 →</button>
+      <div class="pw-hint">本系統僅供課堂學員使用 · 密碼請向講師索取</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PAGE 2: ASSESSMENT ══ -->
+<div class="page" id="assess-page">
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="sb-brand">
+        <div class="sb-logo">
+          <div class="sb-mark">CRI</div>
+          <div class="sb-logotext">PROFILE v2.2<br>TIER-4 DEMO</div>
+        </div>
+        <div class="sb-title">資安治理成熟度評估</div>
+        <div class="sb-sub" id="sb-alias-label">課堂版 · 28 題</div>
+      </div>
+      <div class="sb-progress">
+        <div class="ring-wrap">
+          <svg width="48" height="48" viewBox="0 0 48 48">
+            <circle class="ring-bg" cx="24" cy="24" r="20"/>
+            <circle class="ring-fill" id="ring-fill" cx="24" cy="24" r="20"/>
+          </svg>
+          <div class="ring-pct" id="ring-pct">0%</div>
+        </div>
+        <div class="sb-prog-info">
+          <div class="lbl">評估進度</div>
+          <div class="val" id="sb-cnt">0 / 28</div>
+        </div>
+      </div>
+      <nav class="sb-nav" id="sb-nav"></nav>
+      <div class="sb-footer">CYBER RISK INSTITUTE<br>CRI PROFILE v2.2 · 2026<br>TIER-4 LOCALIZED IMPACT</div>
+    </aside>
+    <main class="main" id="assess-main">
+      <div id="q-screens-wrap"></div>
+      <!-- Results injected here too -->
+      <div id="my-results-wrap" style="display:none;">
+        <div class="results-page" id="my-results-inner"></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ══ PAGE 3: COMPARISON DASHBOARD ══ -->
+<div class="page" id="dash-page">
+  <div class="dash-page">
+    <div class="dash-header">
+      <div class="dash-title">同業比較儀表板</div>
+      <div class="dash-sub" id="dash-sub-line">載入中…</div>
+    </div>
+    <div class="stat-row" id="dash-stats"></div>
+    <div class="r-section-title" style="font-family:var(--font-serif);font-size:16px;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:10px;">
+      匿名排名<span style="flex:1;height:1px;background:var(--border);display:inline-block;"></span>
+    </div>
+    <table class="ranking-table" id="ranking-table">
+      <thead><tr><th>名次</th><th>代號</th><th>機構類型</th><th style="width:180px;">落實比例</th><th style="text-align:right;">得分</th><th style="text-align:right;">百分位</th></tr></thead>
+      <tbody id="ranking-tbody"></tbody>
+    </table>
+    <div class="r-section-title" style="font-family:var(--font-serif);font-size:16px;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:10px;">
+      七大面向比較（我的結果 vs 班級平均）
+      <span style="flex:1;height:1px;background:var(--border);display:inline-block;"></span>
+    </div>
+    <div class="legend-row">
+      <span><span class="legend-dot dot-me" style="display:inline-block;"></span> 我的結果</span>
+      <span><span class="legend-dot dot-peer" style="display:inline-block;"></span> 班級平均</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px;">
+      <div class="chart-box">
+        <div class="chart-title">雷達圖比較</div>
+        <canvas id="dashRadar" width="420" height="340"></canvas>
+      </div>
+      <div>
+        <div class="fn-avg-grid" id="fn-avg-grid" style="grid-template-columns:1fr;gap:8px;"></div>
+      </div>
+    </div>
+    <div class="dash-nav">
+      <button class="btn btn-ghost" onclick="goBackToResults()">← 返回我的結果</button>
+      <button class="btn btn-primary" onclick="refreshDash()">↻ 重新整理數據</button>
+      <button class="btn btn-ghost" onclick="window.print()">列印報告</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════
+const PASSWORD = 'CRI-2026';
+// ── Supabase 設定 ──
+const SUPA_URL = 'https://jrnhjqxqlcjpiiibkndr.supabase.co';
+const SUPA_KEY = 'sb_publishable_2-Tork3kr8CtbElAt1nplA_V5IjVr2e';
+const SUPA_TABLE = 'cri_results';
+const SUPA_ENDPOINT = `${SUPA_URL}/rest/v1/${SUPA_TABLE}`;
+const SUPA_HEADERS = {
+  'apikey': SUPA_KEY,
+  'Authorization': `Bearer ${SUPA_KEY}`,
+  'Content-Type': 'application/json',
+  'Prefer': 'return=minimal',
+};
+
+const FN_CONFIG = {
+  GOVERN:  {zh:'治理', color:'#4f83e0'},
+  IDENTIFY:{zh:'識別', color:'#4dbf87'},
+  PROTECT: {zh:'保護', color:'#d4836a'},
+  DETECT:  {zh:'偵測', color:'#d4b84a'},
+  RESPOND: {zh:'回應', color:'#d4874a'},
+  RECOVER: {zh:'復原', color:'#8a6ad4'},
+  EXTEND:  {zh:'延伸', color:'#4abfbf'},
+};
+
+const RESP_OPTS = [
+  {val:'Yes',           label:'是（已落實）',   sub:'控制措施已完整建立並執行', cls:'opt-yes',    rbcls:'rb-yes',    icon:'✓', score:1},
+  {val:'Yes-Risk Based',label:'是（基於風險）', sub:'依風險評估結果選擇性落實', cls:'opt-yesrb',  rbcls:'rb-yesrb',  icon:'R', score:1},
+  {val:'Yes-Compensating',label:'是（補償控制）',sub:'以替代控制措施達成目的', cls:'opt-yescc',  rbcls:'rb-yescc',  icon:'C', score:1},
+  {val:'Partial',       label:'部分落實',       sub:'控制措施已建立但尚不完整', cls:'opt-partial', rbcls:'rb-partial',icon:'~', score:0},
+  {val:'No',            label:'否（未落實）',   sub:'尚未建立相關控制措施',    cls:'opt-no',     rbcls:'rb-no',     icon:'✗', score:0},
+  {val:'Not Tested',    label:'未經測試',        sub:'已建立但尚未驗證有效性',  cls:'opt-nt',     rbcls:'rb-nt',     icon:'?', score:0},
+  {val:"I Don't Know",  label:'不清楚',          sub:'不確定組織現況',          cls:'opt-idk',    rbcls:'rb-idk',    icon:'—', score:0},
+  {val:'Not Applicable',label:'不適用',          sub:'此項目不適用於本組織',    cls:'opt-na',     rbcls:'rb-na',     icon:'N/A',score:0},
+];
+
+const CRI_DATA = [
+  {function:'GOVERN', items:[
+    {profile_id:'GV.RM-01.01', ds_name:'風險管理策略核准', statement:'科技與資安風險管理策略及框架須經治理機構（例如董事會或其下設委員會）核准，並納入整體業務策略與企業風險管理框架之中。'},
+    {profile_id:'GV.RR-01.01', ds_name:'科技與資安風險管理問責機制', statement:'治理機構（例如董事會或其下設委員會）監督並要求高階管理層負責落實組織的科技與資安風險管理策略及框架。'},
+    {profile_id:'GV.PO-01.01', ds_name:'政策文件化與核准', statement:'科技與資安政策須經文件化、持續維護，並由治理機構（例如董事會或其下設委員會）或指定高階主管核准。'},
+    {profile_id:'GV.OV-01.02', ds_name:'資安長向治理機構報告', statement:'指定資安長（例如 CISO）定期向適當的治理機構（例如董事會或其下設委員會）或同等治理機構，報告組織資安現況。'},
+  ]},
+  {function:'IDENTIFY', items:[
+    {profile_id:'ID.AM-01.01', ds_name:'實體設備資產清冊', statement:'組織維護一份涵蓋實體裝置、硬體設備及資訊系統的最新完整資產清冊。'},
+    {profile_id:'ID.RA-01.01', ds_name:'資產弱點識別', statement:'組織識別、評估並記錄與資產相關的風險及潛在弱點，涵蓋範圍包括人員、資料、科技、設施、服務及連線。'},
+    {profile_id:'ID.RA-03.01', ds_name:'威脅識別與分析', statement:'組織持續識別、分析、關聯、描述並回報組織內部與外部的各類威脅。'},
+    {profile_id:'ID.IM-02.01', ds_name:'滲透測試', statement:'組織定期委託獨立單位對網路、對外系統、關鍵應用程式及相關控制措施執行滲透測試與紅隊演練，以識別資安防禦缺口。'},
+  ]},
+  {function:'PROTECT', items:[
+    {profile_id:'PR.AA-03.01', ds_name:'身份驗證要求', statement:'組織依據使用者存取或特定交易的風險等級，定義並實施驗證要求，包括多因子驗證或帶外驗證，並可採取其他即時風險預防或緩解措施。'},
+    {profile_id:'PR.AT-01.01', ds_name:'資安意識訓練', statement:'所有人員於到職時及定期接受資安意識訓練。'},
+    {profile_id:'PR.DS-01.01', ds_name:'靜態資料保護', statement:'靜態資料的保護措施須與資訊的重要性及敏感程度相稱，並符合資料分類與保護政策（例如採用加密、驗證、存取控制、隔離、遮罩、代符化及檔案完整性監控等方式）。'},
+    {profile_id:'PR.PS-01.02', ds_name:'最小功能原則', statement:'組織系統設定為僅提供必要功能，以落實最小功能原則。'},
+  ]},
+  {function:'DETECT', items:[
+    {profile_id:'DE.CM-01.01', ds_name:'入侵偵測與防禦', statement:'組織部署入侵偵測與入侵防禦能力，於潛在網路入侵的早期階段進行偵測與阻止，以利及時圍堵與復原。'},
+    {profile_id:'DE.CM-03.01', ds_name:'存取活動日誌記錄與監控', statement:'針對使用者及設備的帳號存取、身份驗證及授權活動進行記錄與監控，以確保授權存取的落實。'},
+    {profile_id:'DE.AE-02.01', ds_name:'事件分析與偵測', statement:'組織對偵測到的事件進行即時資料蒐集及進階自動化分析（包括使用防毒軟體、IDS/IPS 等資安工具），以評估攻擊的性質、範圍及手法，預測並阻止類似攻擊，並即時回報風險指標。'},
+    {profile_id:'DE.AE-03.02', ds_name:'事件彙整、關聯與分析', statement:'組織對異常活動、網路及系統告警，以及相關事件與網路威脅情資（涵蓋內部及外部雲端或委外環境）進行即時集中分析、彙整與關聯，以強化對多面向網路攻擊的偵測與防禦。'},
+  ]},
+  {function:'RESPOND', items:[
+    {profile_id:'RS.MA-01.01', ds_name:'應變計畫執行', statement:'組織的應變計畫已就位，並於事件發生期間或之後執行，包括與相關第三方協調，以及引入第三方事件支援服務。'},
+    {profile_id:'RS.AN-03.01', ds_name:'事件調查與根本原因分析', statement:'組織進行徹底調查，以確定事件的性質與範圍、可能的根本原因，以及所造成的潛在損害。'},
+    {profile_id:'RS.CO-02.02', ds_name:'事件通報與申報', statement:'事件發生時，組織依規定時限通知受影響的利害關係人，必要時包括政府機關、自律組織及／或其他監管機構。'},
+    {profile_id:'RS.MI-01.01', ds_name:'事件圍堵', statement:'組織已建立流程，以落實弱點緩解計畫、視需要引入第三方合作夥伴與外部專家，並及時圍堵事件。'},
+  ]},
+  {function:'RECOVER', items:[
+    {profile_id:'RC.RP-01.01', ds_name:'復原計畫執行', statement:'組織於事件發生期間或之後執行其復原計畫，包括事件復原、災難復原及業務持續計畫，以恢復正常運作。'},
+    {profile_id:'RC.RP-02.02', ds_name:'復原優先順序', statement:'復原計畫執行時，優先恢復關鍵服務與核心業務功能，同時將對互聯實體及關鍵基礎設施（如能源與電信）的同步大規模中斷降至最低。'},
+    {profile_id:'RC.RP-03.01', ds_name:'復原備份驗證', statement:'復原步驟包括在繼續使用前，驗證備份、資料複寫、系統映像及其他復原資產的完整性與有效性。'},
+    {profile_id:'RC.CO-03.02', ds_name:'復原活動對外溝通', statement:'組織依規定或視情況需要，及時向監管機關及相關外部利害關係人溝通復原活動的進度。'},
+  ]},
+  {function:'EXTEND', items:[
+    {profile_id:'EX.DD-03.01', ds_name:'第三方資安計畫盡職調查', statement:'組織審查、評估並對潛在關鍵第三方的資安計畫進行風險評鑑，包括其識別、評估、監控及緩解網路風險的能力；政策與程序的完整性；技術與行政控制的強度；以及內部與獨立控制測試計畫的涵蓋範圍。'},
+    {profile_id:'EX.CN-02.01', ds_name:'第三方資安要求', statement:'組織的合約要求第三方落實最低限度的科技與資安管理要求，在合作期間持續維護相關措施，並定期提供合規證明。'},
+    {profile_id:'EX.MM-01.01', ds_name:'第三方監控與管理資源', statement:'組織建立程序並配置具備相應知識與經驗的充足資源，依據各第三方對組織的風險程度及其產品、服務或關係的重要性，對第三方關係進行管理與監控。'},
+    {profile_id:'EX.TR-02.01', ds_name:'第三方關係終止', statement:'終止第三方合約時，組織確保及時處理所有技術與資安事項（存取、連線等）、業務事項（服務、支援及持續關係）、財產事項（資料、實體及智慧財產）及法律事項。'},
+  ]},
+];
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let myAlias = '';
+let myOrgType = '';
+let myAnswers = {};
+let myResults = null;
+let curFi = -1, curQi = 0;
+
+// ══════════════════════════════════════════
+// STORAGE HELPERS — Supabase 共享資料庫
+// 所有學員資料即時共享，真正的跨裝置同步
+// ══════════════════════════════════════════
+
+// ── 儲存：寫入 Supabase（upsert，同代號更新） ──
+async function saveMyResult(resultObj) {
+  const fnKeyMap = {'GOVERN':'govern','IDENTIFY':'identify','PROTECT':'protect',
+    'DETECT':'detect','RESPOND':'respond','RECOVER':'recover','EXTEND':'extend'};
+  const m = maturityInfo(resultObj.totalYes, resultObj.total);
+  const fnScoresObj = {};
+  resultObj.fnScores.forEach(fs => { fnScoresObj[fs.fn] = {yes:fs.yes, total:fs.total}; });
+
+  const payload = {
+    alias: resultObj.alias,
+    org_type: resultObj.orgType || '未填寫',
+    total_yes: resultObj.totalYes,
+    total: resultObj.total,
+    pct: Math.round(resultObj.totalYes / resultObj.total * 100),
+    govern:   (resultObj.fnScores.find(f=>f.fn==='GOVERN')  ||{yes:0}).yes,
+    identify: (resultObj.fnScores.find(f=>f.fn==='IDENTIFY')||{yes:0}).yes,
+    protect:  (resultObj.fnScores.find(f=>f.fn==='PROTECT') ||{yes:0}).yes,
+    detect:   (resultObj.fnScores.find(f=>f.fn==='DETECT')  ||{yes:0}).yes,
+    respond:  (resultObj.fnScores.find(f=>f.fn==='RESPOND') ||{yes:0}).yes,
+    recover:  (resultObj.fnScores.find(f=>f.fn==='RECOVER') ||{yes:0}).yes,
+    extend:   (resultObj.fnScores.find(f=>f.fn==='EXTEND')  ||{yes:0}).yes,
+    maturity: m.label,
+    fn_scores_json: JSON.stringify(fnScoresObj),
+    updated_at: new Date().toISOString(),
+  };
+
+  try {
+    // upsert：alias 相同則更新，不同則新增
+    const res = await fetch(SUPA_ENDPOINT + '?on_conflict=alias', {
+      method: 'POST',
+      headers: { ...SUPA_HEADERS, 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+      body: JSON.stringify(payload),
+    });
+    if (res.ok || res.status === 201) return true;
+    const err = await res.text();
+    console.warn('Supabase save error:', res.status, err);
+    return false;
+  } catch(e) {
+    console.error('saveMyResult error:', e);
+    return false;
+  }
+}
+
+// ── 讀取：從 Supabase 取得所有學員結果 ──
+async function loadAllResults() {
+  try {
+    const res = await fetch(
+      SUPA_ENDPOINT + '?select=*&order=updated_at.asc',
+      { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` } }
+    );
+    if (!res.ok) throw new Error(`Supabase read error: ${res.status}`);
+    const rows = await res.json();
+    const fns = ['GOVERN','IDENTIFY','PROTECT','DETECT','RESPOND','RECOVER','EXTEND'];
+    const fnCols = ['govern','identify','protect','detect','respond','recover','extend'];
+    return rows.map(row => ({
+      alias: row.alias || '',
+      orgType: row.org_type || '',
+      totalYes: row.total_yes || 0,
+      total: row.total || 28,
+      fnScores: fns.map((fn, i) => ({ fn, yes: row[fnCols[i]] || 0, total: 4 })),
+      maturity: row.maturity || '',
+    }));
+  } catch(e) {
+    console.error('loadAllResults error:', e);
+    return [];
+  }
+}
+
+// ══════════════════════════════════════════
+// PASSWORD
+// ══════════════════════════════════════════
+function tryLogin() {
+  const pw = document.getElementById('pw-input').value.trim();
+  const alias = document.getElementById('pw-alias').value.trim();
+  const orgtype = document.getElementById('pw-orgtype').value.trim();
+  const err = document.getElementById('pw-err');
+
+  if (pw !== PASSWORD) {
+    err.textContent = '密碼錯誤，請向講師確認。';
+    document.getElementById('pw-input').style.borderColor = 'rgba(231,76,60,.5)';
+    return;
+  }
+  if (!alias) {
+    err.textContent = '請輸入您的代號。';
+    return;
+  }
+  myAlias = alias;
+  myOrgType = orgtype || '未填寫';
+  err.textContent = '';
+  document.getElementById('sb-alias-label').textContent = `${alias} · 28 題`;
+  showPage('assess-page');
+  buildSidebar();
+  buildQScreens();
+  activateFn(0);
+}
+
+// ══════════════════════════════════════════
+// PAGE NAVIGATION
+// ══════════════════════════════════════════
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ══════════════════════════════════════════
+// SIDEBAR
+// ══════════════════════════════════════════
+function buildSidebar() {
+  const nav = document.getElementById('sb-nav');
+  nav.innerHTML = CRI_DATA.map((fn, fi) => {
+    const cfg = FN_CONFIG[fn.function] || {};
+    return `<div class="fn-item" id="fn-item-${fi}" onclick="jumpFn(${fi})">
+      <div class="fn-dot" style="background:${cfg.color}"></div>
+      <div class="fn-item-label">
+        <div class="fn-item-code">${fn.function}</div>
+        <div class="fn-item-zh">${cfg.zh}</div>
+      </div>
+      <div class="fn-check">✓</div>
+      <div class="fn-cnt" id="fn-cnt-${fi}">0/4</div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// BUILD QUESTION SCREENS
+// ══════════════════════════════════════════
+function buildQScreens() {
+  const wrap = document.getElementById('q-screens-wrap');
+  wrap.innerHTML = '';
+  CRI_DATA.forEach((fn, fi) => {
+    const cfg = FN_CONFIG[fn.function] || {};
+    const div = document.createElement('div');
+    div.className = 'q-screen';
+    div.id = `qs-${fi}`;
+    const dots = fn.items.map((_, qi) => `<div class="q-dot" id="qdot-${fi}-${qi}"></div>`).join('');
+    div.innerHTML = `
+      <div class="fn-header">
+        <div class="fn-badge" style="background:${cfg.color}22;color:${cfg.color};border:1px solid ${cfg.color}44;">${fn.function}</div>
+        <div class="fn-hinfo">
+          <div class="fn-htitle">${cfg.zh} — ${fn.function}</div>
+          <div class="fn-hsub">CRI Profile v2.2 · Tier-4 診斷聲明</div>
+        </div>
+        <div class="fn-pips" id="pips-${fi}">
+          ${fn.items.map((_,qi)=>`<div class="pip" id="pip-${fi}-${qi}"></div>`).join('')}
+        </div>
+      </div>
+      <div class="q-body" id="qb-${fi}"></div>
+      <div class="q-nav">
+        <button class="btn btn-ghost" onclick="prevQ(${fi})" id="btn-prev-${fi}">← 上一題</button>
+        <div class="q-dots">${dots}</div>
+        <button class="btn btn-skip" onclick="skipQ(${fi})">略過此題</button>
+        <button class="btn btn-primary" onclick="nextQ(${fi})" id="btn-next-${fi}" disabled>下一題 →</button>
+      </div>`;
+    wrap.appendChild(div);
+  });
+}
+
+function showQ(fi, qi) {
+  const fn = CRI_DATA[fi];
+  const item = fn.items[qi];
+  const key = `${fi}-${qi}`;
+  const cur = myAnswers[key];
+  const isLast = fi === CRI_DATA.length-1 && qi === fn.items.length-1;
+  const isLastFn = qi === fn.items.length-1;
+
+  // pips & dots
+  fn.items.forEach((_,i) => {
+    const pip = document.getElementById(`pip-${fi}-${i}`);
+    const dot = document.getElementById(`qdot-${fi}-${i}`);
+    if(pip){ pip.className='pip'; if(myAnswers[`${fi}-${i}`]) pip.classList.add('done'); if(i===qi) pip.classList.add('cur'); }
+    if(dot){ dot.className='q-dot'; if(myAnswers[`${fi}-${i}`]) dot.classList.add('answered'); if(i===qi) dot.classList.add('cur'); }
+  });
+
+  const opts = RESP_OPTS.map(opt => `
+    <button class="resp-btn ${opt.cls}${cur===opt.val?' sel':''}" onclick="pickAns('${key}','${opt.val}',${fi},${qi})">
+      <div class="resp-icon">${opt.icon}</div>
+      <div><div class="resp-val">${opt.label}</div><div class="resp-sub">${opt.sub}</div></div>
+    </button>`).join('');
+
+  document.getElementById(`qb-${fi}`).innerHTML = `
+    <div class="q-wrap">
+      <div class="q-step">第 ${qi+1} 題，共 ${fn.items.length} 題</div>
+      <div class="q-pid">${item.profile_id}</div>
+      <div class="q-name">${item.ds_name}</div>
+      <div class="q-stmt">${item.statement}</div>
+      <div class="resp-grid">${opts}</div>
+    </div>`;
+
+  const nb = document.getElementById(`btn-next-${fi}`);
+  const pb = document.getElementById(`btn-prev-${fi}`);
+  nb.disabled = !cur;
+  nb.textContent = isLast ? '完成評估 →' : isLastFn ? '下一面向 →' : '下一題 →';
+  pb.disabled = fi===0 && qi===0;
+}
+
+function pickAns(key, val, fi, qi) {
+  myAnswers[key] = val;
+  showQ(fi, qi);
+  updateProgress();
+  updateFnCounts();
+  setTimeout(() => {
+    const nb = document.getElementById(`btn-next-${fi}`);
+    if(nb && !nb.disabled) nextQ(fi);
+  }, 380);
+}
+
+function nextQ(fi) {
+  const fn = CRI_DATA[fi];
+  if(curQi < fn.items.length-1){ curQi++; showQ(fi,curQi); }
+  else if(fi < CRI_DATA.length-1){ activateFn(fi+1); }
+  else { finishAssessment(); }
+}
+
+function prevQ(fi) {
+  if(curQi > 0){ curQi--; showQ(fi,curQi); }
+  else if(fi > 0){ activateFn(fi-1, CRI_DATA[fi-1].items.length-1); }
+}
+
+function skipQ(fi){ nextQ(fi); }
+
+function jumpFn(fi) { activateFn(fi); }
+
+function activateFn(fi, startQi=0) {
+  document.querySelectorAll('.q-screen').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.fn-item').forEach((el,i)=>{
+    el.classList.remove('active','done');
+    if(i<fi) el.classList.add('done');
+  });
+  const qs = document.getElementById(`qs-${fi}`);
+  if(qs) qs.classList.add('active');
+  const fi_el = document.getElementById(`fn-item-${fi}`);
+  if(fi_el) fi_el.classList.add('active');
+  curFi=fi; curQi=startQi;
+  document.getElementById('assess-main').scrollTop=0;
+  document.getElementById('my-results-wrap').style.display='none';
+  document.querySelectorAll('.q-screen').forEach(el=>{ if(el.id!==`qs-${fi}`) el.classList.remove('active'); });
+  document.getElementById(`qs-${fi}`).classList.add('active');
+  showQ(fi, startQi);
+  updateProgress();
+}
+
+function updateProgress() {
+  const total=28, done=Object.keys(myAnswers).length;
+  const pct=Math.round(done/total*100);
+  const circ=126, off=circ-(pct/100)*circ;
+  const rf=document.getElementById('ring-fill'); if(rf) rf.style.strokeDashoffset=off;
+  const rp=document.getElementById('ring-pct'); if(rp) rp.textContent=pct+'%';
+  const sc=document.getElementById('sb-cnt'); if(sc) sc.textContent=`${done} / ${total}`;
+}
+
+function updateFnCounts() {
+  CRI_DATA.forEach((fn,fi)=>{
+    const done=fn.items.filter((_,qi)=>myAnswers[`${fi}-${qi}`]).length;
+    const el=document.getElementById(`fn-cnt-${fi}`); if(el) el.textContent=`${done}/${fn.items.length}`;
+    const item=document.getElementById(`fn-item-${fi}`);
+    if(item && done===fn.items.length) item.classList.add('done');
+  });
+}
+
+// ══════════════════════════════════════════
+// FINISH & SAVE
+// ══════════════════════════════════════════
+async function finishAssessment() {
+  // Calc fn scores
+  const fnScores = CRI_DATA.map((fn,fi)=>{
+    let yes=0,partial=0,no=0,other=0;
+    fn.items.forEach((_,qi)=>{
+      const v=myAnswers[`${fi}-${qi}`];
+      if(!v){no++;return;}
+      if(['Yes','Yes-Risk Based','Yes-Compensating'].includes(v)) yes++;
+      else if(v==='Partial') partial++;
+      else if(v==='No') no++;
+      else other++;
+    });
+    return {fn:fn.function, total:fn.items.length, yes, partial, no, other};
+  });
+  const totalYes = fnScores.reduce((s,r)=>s+r.yes,0);
+
+  myResults = {
+    alias: myAlias,
+    orgType: myOrgType,
+    totalYes,
+    total: 28,
+    fnScores,
+    answers: {...myAnswers},
+    ts: Date.now(),
+  };
+
+  // Show saving indicator
+  document.querySelectorAll('.q-screen').forEach(el=>el.classList.remove('active'));
+  document.getElementById('my-results-wrap').style.display='block';
+  document.getElementById('my-results-inner').innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;gap:18px;">
+      <div class="wait-spinner"></div>
+      <div class="wait-text">正在儲存評估結果…</div>
+    </div>`;
+  document.getElementById('assess-main').scrollTop=0;
+
+  // Save to Supabase
+  const saved = await saveMyResult(myResults);
+
+  // Show results
+  renderMyResults(saved);
+}
+
+// ══════════════════════════════════════════
+// MY RESULTS
+// ══════════════════════════════════════════
+function maturityInfo(yes, total) {
+  const p = yes/total;
+  if(p>=0.8) return {label:'成熟度：進階 (Advanced)', cls:'rb-yes',
+    desc:'貴機構在本次評估中表現優異，大多數代表性診斷聲明均已落實。建議進一步完成 CRI Profile v2.2 完整 208 題評估，以識別細部缺口。'};
+  if(p>=0.6) return {label:'成熟度：中等 (Intermediate)', cls:'rb-yesrb',
+    desc:'貴機構已建立基礎資安治理架構，多數關鍵控制措施已落實。建議針對「否（未落實）」與「部分落實」項目優先制定改善計畫。'};
+  if(p>=0.4) return {label:'成熟度：基礎 (Basic)', cls:'rb-partial',
+    desc:'貴機構資安控制措施尚不完整，存在明顯缺口。建議立即啟動改善計畫，優先強化得分較低的功能面向，並向董事會彙報。'};
+  return {label:'成熟度：初始 (Initial)', cls:'rb-no',
+    desc:'貴機構資安治理尚在初始階段。建議立即制定整體改善路徑圖，並尋求外部專業顧問協助。'};
+}
+
+function renderMyResults(saved=true) {
+  document.querySelectorAll('.q-screen').forEach(el=>el.classList.remove('active'));
+  document.getElementById('my-results-wrap').style.display='block';
+  document.getElementById('assess-main').scrollTop=0;
+
+  const r = myResults;
+  const m = maturityInfo(r.totalYes, r.total);
+
+  // FN cards HTML
+  const fnCards = r.fnScores.map(fs=>{
+    const cfg=FN_CONFIG[fs.fn]||{};
+    const p=Math.round(fs.yes/fs.total*100);
+    return `<div class="fn-card" style="--fc:${cfg.color}">
+      <div class="fn-card-name">${fs.fn} — ${cfg.zh}</div>
+      <div class="fn-card-score">${fs.yes}<span> / ${fs.total}</span></div>
+      <div class="fn-bar-wrap"><div class="fn-bar" style="width:${p}%"></div></div>
+      <div class="fn-card-meta">${p}% 落實 · ${fs.partial} 部分 · ${fs.no} 未落實</div>
+    </div>`;
+  }).join('');
+
+  // Detail rows
+  const detailRows = CRI_DATA.map((fn,fi)=>{
+    const cfg=FN_CONFIG[fn.function]||{};
+    const rows=fn.items.map((item,qi)=>{
+      const v=myAnswers[`${fi}-${qi}`]||'—';
+      const opt=RESP_OPTS.find(o=>o.val===v);
+      const cls=opt?opt.rbcls:'rb-idk';
+      return `<tr><td style="color:${cfg.color};font-family:var(--font-mono);font-size:9px;">${item.profile_id}</td><td>${item.ds_name}</td><td><span class="rbadge ${cls}">${v}</span></td></tr>`;
+    }).join('');
+    return `<div style="margin-bottom:16px;">
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;">
+        <span style="padding:2px 8px;border-radius:2px;font-family:var(--font-mono);font-size:8px;letter-spacing:1px;background:${cfg.color}22;color:${cfg.color};border:1px solid ${cfg.color}44;">${fn.function}</span>
+        <span style="font-size:12px;color:var(--text);">${cfg.zh}</span>
+      </div>
+      <table class="dtbl"><thead><tr><th>識別碼</th><th>診斷聲明名稱</th><th>回應結果</th></tr></thead><tbody>${rows}</tbody></table>
+    </div>`;
+  }).join('');
+
+  document.getElementById('my-results-inner').innerHTML = `
+    ${saved ?
+      `<div style="background:#1a4a2e;border:1px solid var(--green);border-radius:4px;padding:10px 16px;margin-bottom:20px;font-size:12px;color:var(--green);">
+        ✓ 評估結果已同步至雲端資料庫，點下方「查看同業比較」即時查看全班排名。
+      </div>` :
+      `<div style="background:#4a1a1a;border:1px solid var(--red);border-radius:4px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:var(--red);">
+        ⚠️ 資料庫連線失敗，請確認網路後重試。（請向講師回報）
+      </div>`
+    }
+    <div class="r-hero">
+      <div class="r-org">${myAlias}｜${myOrgType}</div>
+      <div class="r-score">${r.totalYes}<sup>/28</sup></div>
+      <div class="r-score-sub">已確認落實（是／基於風險／補償控制）</div>
+      <div class="r-badge ${m.cls}">${m.label}</div>
+      <p class="r-summary">${m.desc}</p>
+    </div>
+    <div class="r-section-title">七大功能面向結果</div>
+    <div class="fn-cards">${fnCards}</div>
+    <div class="chart-box">
+      <div class="chart-title">落實情形雷達圖</div>
+      <canvas id="myRadar" width="480" height="360"></canvas>
+    </div>
+    <div class="sep"></div>
+    <div class="r-section-title">各題項回應明細</div>
+    ${detailRows}
+    <div style="display:flex;gap:10px;margin-top:28px;flex-wrap:wrap;">
+      <button class="btn btn-ghost" onclick="goBackToQ()">← 返回修改</button>
+      <button class="btn btn-primary" onclick="goDash()">查看同業比較 →</button>
+      <button class="btn btn-ghost" onclick="window.print()">列印報告</button>
+    </div>`;
+
+  // Draw my radar
+  setTimeout(()=>drawRadar('myRadar', r.fnScores, null), 100);
+}
+
+function goBackToQ() {
+  document.getElementById('my-results-wrap').style.display='none';
+  activateFn(curFi, curQi);
+}
+
+function goBackToResults() {
+  showPage('assess-page');
+  document.querySelectorAll('.q-screen').forEach(el=>el.classList.remove('active'));
+  document.getElementById('my-results-wrap').style.display='block';
+}
+
+// ══════════════════════════════════════════
+// COMPARISON DASHBOARD
+// ══════════════════════════════════════════
+async function goDash() {
+  showPage('dash-page');
+  await refreshDash();
+}
+
+async function refreshDash() {
+  document.getElementById('dash-sub-line').textContent = '資料載入中，請稍候…';
+  document.getElementById('ranking-tbody').innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text2);">載入中…</td></tr>`;
+
+  const all = await loadAllResults();
+  if(!all || all.length===0){
+    document.getElementById('dash-sub-line').textContent='尚無其他學員完成評估';
+    return;
+  }
+
+  // Sort by totalYes desc
+  const sorted = [...all].sort((a,b)=>b.totalYes-a.totalYes);
+  const n = sorted.length;
+  const avgTotal = sorted.reduce((s,r)=>s+r.totalYes,0)/n;
+  const myRank = sorted.findIndex(r=>r.alias===myAlias)+1;
+
+  document.getElementById('dash-sub-line').textContent =
+    `共 ${n} 位學員已完成評估 · 班級平均落實率 ${Math.round(avgTotal/28*100)}% · 資料更新時間：${new Date().toLocaleTimeString('zh-TW')}`;
+
+  // Stats
+  const maxScore = sorted[0].totalYes;
+  const minScore = sorted[sorted.length-1].totalYes;
+  document.getElementById('dash-stats').innerHTML = `
+    <div class="stat-card"><span class="stat-num">${n}</span><span class="stat-lbl">已完成評估人數</span></div>
+    <div class="stat-card"><span class="stat-num">${avgTotal.toFixed(1)}</span><span class="stat-lbl">班級平均得分（/28）</span></div>
+    <div class="stat-card"><span class="stat-num">${Math.round(avgTotal/28*100)}%</span><span class="stat-lbl">平均落實率</span></div>
+    <div class="stat-card"><span class="stat-num">${myRank} / ${n}</span><span class="stat-lbl">我的名次</span></div>`;
+
+  // Ranking
+  const tbody = document.getElementById('ranking-tbody');
+  tbody.innerHTML = sorted.map((r,i)=>{
+    const rank=i+1;
+    const pct=Math.round(r.totalYes/r.total*100);
+    const percentile=Math.round(((n-rank)/n)*100);
+    const isMe = r.alias===myAlias;
+    const medal = rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'';
+    return `<tr class="${isMe?'my-row':''} rank-${Math.min(rank,4)}">
+      <td class="rank-num">${medal||rank}</td>
+      <td style="font-weight:${isMe?600:400};color:${isMe?'var(--gold)':'var(--white-dim)'}">
+        ${r.alias}${isMe?' ◀ 我':''}</td>
+      <td>${r.orgType||'—'}</td>
+      <td class="rank-bar-cell">
+        <div class="rank-bar-wrap"><div class="rank-bar-fill" style="width:${pct}%"></div></div>
+      </td>
+      <td class="rank-score">${r.totalYes} / ${r.total}</td>
+      <td class="rank-pct">前 ${100-percentile}%</td>
+    </tr>`;
+  }).join('');
+
+  // Fn averages
+  const fnKeys = CRI_DATA.map(fn=>fn.function);
+  const fnAvgs = fnKeys.map(fn=>{
+    const vals = sorted.map(r=>{
+      const fs=r.fnScores.find(f=>f.fn===fn);
+      return fs ? fs.yes/fs.total : 0;
+    });
+    return vals.reduce((s,v)=>s+v,0)/vals.length;
+  });
+  const myFnScores = myResults ? myResults.fnScores : null;
+
+  const fnAvgGrid = document.getElementById('fn-avg-grid');
+  fnAvgGrid.innerHTML = fnKeys.map((fn,i)=>{
+    const cfg=FN_CONFIG[fn]||{};
+    const peerPct=Math.round(fnAvgs[i]*100);
+    const myFs=myFnScores?myFnScores.find(f=>f.fn===fn):null;
+    const myPct=myFs?Math.round(myFs.yes/myFs.total*100):0;
+    const diff=myPct-peerPct;
+    const diffStr=diff>=0?`+${diff}%`:`${diff}%`;
+    const diffCol=diff>0?'#2ecc71':diff<0?'#e74c3c':'var(--white-dim)';
+    return `<div class="fn-avg-card" style="--fc:${cfg.color}">
+      <div class="fn-avg-name">${fn} — ${cfg.zh}</div>
+      <div class="fn-avg-vals">
+        <div class="my-avg">${myPct}<span>%</span></div>
+        <div class="peer-avg">vs <small>班均</small> ${peerPct}%</div>
+        <div style="font-family:var(--font-mono);font-size:10px;color:${diffCol};margin-left:4px;">${diffStr}</div>
+      </div>
+      <div class="fn-avg-bars">
+        <div class="avg-bar-row"><span class="avg-bar-label" style="color:var(--gold)">我</span>
+          <div class="avg-bar-bg"><div class="avg-bar-my" style="width:${myPct}%;background:${cfg.color}"></div></div>
+        </div>
+        <div class="avg-bar-row"><span class="avg-bar-label">均</span>
+          <div class="avg-bar-bg"><div class="avg-bar-peer" style="width:${peerPct}%"></div></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Radar comparison
+  const peerFnData = fnKeys.map((fn,i)=>({fn, yes:Math.round(fnAvgs[i]*4), total:4}));
+  drawRadar('dashRadar', myFnScores, peerFnData);
+}
+
+// ══════════════════════════════════════════
+// RADAR CHART
+// ══════════════════════════════════════════
+function drawRadar(canvasId, myData, peerData) {
+  const canvas = document.getElementById(canvasId);
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  const cx=W/2, cy=H/2+8;
+  const r=Math.min(W,H)*0.31;
+  const fns=CRI_DATA.map(f=>f.function);
+  const n=fns.length;
+  const angles=fns.map((_,i)=>(Math.PI*2*i/n)-Math.PI/2);
+
+  ctx.clearRect(0,0,W,H);
+
+  // Grid
+  [.25,.5,.75,1].forEach(frac=>{
+    ctx.beginPath();
+    angles.forEach((a,i)=>{
+      const x=cx+r*frac*Math.cos(a), y=cy+r*frac*Math.sin(a);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.closePath();
+    ctx.strokeStyle=frac===1?'rgba(255,255,255,.09)':'rgba(255,255,255,.04)';
+    ctx.lineWidth=1; ctx.stroke();
+  });
+  angles.forEach(a=>{
+    ctx.beginPath(); ctx.moveTo(cx,cy);
+    ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));
+    ctx.strokeStyle='rgba(255,255,255,.04)'; ctx.lineWidth=1; ctx.stroke();
+  });
+
+  // Peer polygon
+  if(peerData){
+    ctx.beginPath();
+    peerData.forEach((res,i)=>{
+      const frac=res.total>0?res.yes/res.total:0;
+      const x=cx+r*frac*Math.cos(angles[i]), y=cy+r*frac*Math.sin(angles[i]);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.closePath();
+    ctx.fillStyle='rgba(255,255,255,.06)'; ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,.3)'; ctx.lineWidth=2; ctx.setLineDash([4,3]); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // My polygon
+  if(myData){
+    ctx.beginPath();
+    fns.forEach((fn,i)=>{
+      const fs=myData.find?myData.find(f=>f.fn===fn):myData[i];
+      const frac=fs&&fs.total>0?fs.yes/fs.total:0;
+      const x=cx+r*frac*Math.cos(angles[i]), y=cy+r*frac*Math.sin(angles[i]);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.closePath();
+    ctx.fillStyle='rgba(201,168,76,.12)'; ctx.fill();
+    ctx.strokeStyle='rgba(201,168,76,.75)'; ctx.lineWidth=2; ctx.stroke();
+
+    fns.forEach((fn,i)=>{
+      const cfg=FN_CONFIG[fn]||{};
+      const fs=myData.find?myData.find(f=>f.fn===fn):myData[i];
+      const frac=fs&&fs.total>0?fs.yes/fs.total:0;
+      const x=cx+r*frac*Math.cos(angles[i]), y=cy+r*frac*Math.sin(angles[i]);
+      ctx.beginPath(); ctx.arc(x,y,4,0,Math.PI*2);
+      ctx.fillStyle=cfg.color||'#c9a84c'; ctx.fill();
+    });
+  }
+
+  // Labels
+  fns.forEach((fn,i)=>{
+    const cfg=FN_CONFIG[fn]||{};
+    const lr=r+42;
+    const x=cx+lr*Math.cos(angles[i]), y=cy+lr*Math.sin(angles[i]);
+    ctx.textAlign='center';
+    ctx.font='10px "IBM Plex Mono"';
+    ctx.fillStyle=cfg.color||'rgba(255,255,255,.7)';
+    ctx.fillText(fn,x,y-4);
+    if(myData){
+      const fs=myData.find?myData.find(f=>f.fn===fn):myData[i];
+      const pct=fs&&fs.total>0?Math.round(fs.yes/fs.total*100):0;
+      ctx.font='9px "IBM Plex Mono"';
+      ctx.fillStyle='rgba(255,255,255,.4)';
+      ctx.fillText(`${pct}%`,x,y+8);
+    }
+  });
+}
+</script>
+</body>
+</html>
