@@ -105,13 +105,13 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .q-wrap{max-width:700px;}
 .q-step{font-family:var(--font-mono);font-size:10px;color:var(--text2);letter-spacing:2px;margin-bottom:8px;text-transform:uppercase;}
 .q-pid{font-family:var(--font-mono);font-size:12px;color:var(--gold);margin-bottom:6px;font-weight:500;}
-.q-name{font-family:var(--font-serif);font-size:22px;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.4;}
-.q-stmt{font-size:14px;color:var(--text2);line-height:1.85;margin-bottom:28px;padding:16px 20px;background:var(--card);border-left:3px solid var(--gold);border-radius:0 4px 4px 0;}
+.q-name{font-family:var(--font-serif);font-size:24px;font-weight:700;color:var(--text);margin-bottom:16px;line-height:1.4;}
+.q-stmt{font-size:15px;color:var(--text2);line-height:1.85;margin-bottom:28px;padding:18px 22px;background:var(--card);border-left:3px solid var(--gold);border-radius:0 4px 4px 0;}
 .resp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:32px;}
-.resp-btn{display:flex;align-items:center;gap:10px;padding:13px 16px;border:1px solid var(--border2);border-radius:4px;cursor:pointer;transition:all .15s;background:var(--card);text-align:left;width:100%;font-family:var(--font-sans);}
+.resp-btn{display:flex;align-items:center;gap:12px;padding:15px 18px;border:1px solid var(--border2);border-radius:4px;cursor:pointer;transition:all .15s;background:var(--card);text-align:left;width:100%;font-family:var(--font-sans);}
 .resp-btn:hover{border-color:var(--gold);background:var(--card2);}
 .resp-btn.sel{border-color:var(--gold);background:var(--card2);box-shadow:0 0 0 2px rgba(212,169,78,.3);}
-.resp-icon{width:28px;height:28px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;font-family:var(--font-mono);font-weight:700;}
+.resp-icon{width:34px;height:34px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;font-family:var(--font-mono);font-weight:700;}
 .opt-yes .resp-icon{background:#1a4a2e;color:var(--green);}
 .opt-yesrb .resp-icon{background:#1a2f5a;color:var(--blue);}
 .opt-yescc .resp-icon{background:#2a1a4a;color:var(--purple);}
@@ -120,8 +120,8 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .opt-nt .resp-icon{background:#3a3000;color:#d4c040;}
 .opt-idk .resp-icon{background:var(--bg3);color:var(--text2);}
 .opt-na .resp-icon{background:var(--bg2);color:var(--text3);}
-.resp-val{font-size:13px;color:var(--text);font-weight:600;}
-.resp-sub{font-size:11px;color:var(--text2);margin-top:2px;}
+.resp-val{font-size:16px;color:var(--text);font-weight:700;}
+.resp-sub{font-size:13px;color:var(--text2);margin-top:3px;}
 .q-nav{display:flex;align-items:center;gap:10px;padding:16px 48px;border-top:1px solid var(--border2);background:var(--bg);}
 .q-dots{flex:1;display:flex;gap:5px;align-items:center;}
 .q-dot{width:7px;height:7px;border-radius:50%;background:var(--border2);transition:all .2s;}
@@ -386,14 +386,14 @@ const FN_CONFIG = {
 };
 
 const RESP_OPTS = [
-  {val:'Yes',           label:'是（已落實）',   sub:'控制措施已完整建立並執行', cls:'opt-yes',    rbcls:'rb-yes',    icon:'✓', score:1},
-  {val:'Yes-Risk Based',label:'是（基於風險）', sub:'依風險評估結果選擇性落實', cls:'opt-yesrb',  rbcls:'rb-yesrb',  icon:'R', score:1},
-  {val:'Yes-Compensating',label:'是（補償控制）',sub:'以替代控制措施達成目的', cls:'opt-yescc',  rbcls:'rb-yescc',  icon:'C', score:1},
-  {val:'Partial',       label:'部分落實',       sub:'控制措施已建立但尚不完整', cls:'opt-partial', rbcls:'rb-partial',icon:'~', score:0},
-  {val:'No',            label:'否（未落實）',   sub:'尚未建立相關控制措施',    cls:'opt-no',     rbcls:'rb-no',     icon:'✗', score:0},
-  {val:'Not Tested',    label:'未經測試',        sub:'已建立但尚未驗證有效性',  cls:'opt-nt',     rbcls:'rb-nt',     icon:'?', score:0},
-  {val:"I Don't Know",  label:'不清楚',          sub:'不確定組織現況',          cls:'opt-idk',    rbcls:'rb-idk',    icon:'—', score:0},
-  {val:'Not Applicable',label:'不適用',          sub:'此項目不適用於本組織',    cls:'opt-na',     rbcls:'rb-na',     icon:'N/A',score:0},
+  {val:'Yes',           label:'是（已落實）　　＋1分', sub:'控制措施已完整建立並執行', cls:'opt-yes',    rbcls:'rb-yes',    icon:'✓', score:1},
+  {val:'Yes-Risk Based',label:'是（基於風險）　＋1分', sub:'依風險評估結果選擇性落實', cls:'opt-yesrb',  rbcls:'rb-yesrb',  icon:'R', score:1},
+  {val:'Yes-Compensating',label:'是（補償控制）　＋1分',sub:'以替代控制措施達成目的',  cls:'opt-yescc',  rbcls:'rb-yescc',  icon:'C', score:1},
+  {val:'Partial',       label:'部分落實　　　　　0分', sub:'控制措施已建立但尚不完整', cls:'opt-partial', rbcls:'rb-partial',icon:'~', score:0},
+  {val:'No',            label:'否（未落實）　　　0分', sub:'尚未建立相關控制措施',    cls:'opt-no',     rbcls:'rb-no',     icon:'✗', score:0},
+  {val:'Not Tested',    label:'未經測試　　　　　0分', sub:'已建立但尚未驗證有效性',  cls:'opt-nt',     rbcls:'rb-nt',     icon:'?', score:0},
+  {val:"I Don't Know",  label:'不清楚　　　　　　0分', sub:'不確定組織現況',          cls:'opt-idk',    rbcls:'rb-idk',    icon:'—', score:0},
+  {val:'Not Applicable',label:'不適用　　　　　　0分', sub:'此項目不適用於本組織',    cls:'opt-na',     rbcls:'rb-na',     icon:'N/A',score:0},
 ];
 
 const CRI_DATA = [
@@ -761,18 +761,52 @@ async function finishAssessment() {
 }
 
 // ══════════════════════════════════════════
-// MY RESULTS
+// MY RESULTS — B+C 混合模式
+// C：官方回應分佈統計（主要）
+// B：課堂參考成熟度判定（輔助）
 // ══════════════════════════════════════════
+
+// ── B方案：課堂參考成熟度（基於落實率，標註非官方） ──
 function maturityInfo(yes, total) {
   const p = yes/total;
-  if(p>=0.8) return {label:'成熟度：進階 (Advanced)', cls:'rb-yes',
-    desc:'貴機構在本次評估中表現優異，大多數代表性診斷聲明均已落實。建議進一步完成 CRI Profile v2.2 完整 208 題評估，以識別細部缺口。'};
-  if(p>=0.6) return {label:'成熟度：中等 (Intermediate)', cls:'rb-yesrb',
-    desc:'貴機構已建立基礎資安治理架構，多數關鍵控制措施已落實。建議針對「否（未落實）」與「部分落實」項目優先制定改善計畫。'};
-  if(p>=0.4) return {label:'成熟度：基礎 (Basic)', cls:'rb-partial',
-    desc:'貴機構資安控制措施尚不完整，存在明顯缺口。建議立即啟動改善計畫，優先強化得分較低的功能面向，並向董事會彙報。'};
-  return {label:'成熟度：初始 (Initial)', cls:'rb-no',
-    desc:'貴機構資安治理尚在初始階段。建議立即制定整體改善路徑圖，並尋求外部專業顧問協助。'};
+  if(p>=0.8) return {label:'進階 (Advanced)', cls:'rb-yes',
+    desc:'落實率達 80% 以上。大多數診斷聲明已確認落實，建議進一步完成 CRI Profile v2.2 完整 208 題評估以識別細部缺口。'};
+  if(p>=0.6) return {label:'中等 (Intermediate)', cls:'rb-yesrb',
+    desc:'落實率達 60–79%。基礎架構已建立，建議優先針對「否（未落實）」與「部分落實」項目制定改善計畫。'};
+  if(p>=0.4) return {label:'基礎 (Basic)', cls:'rb-partial',
+    desc:'落實率達 40–59%。存在明顯缺口，建議立即啟動改善計畫並向董事會彙報現況。'};
+  return {label:'初始 (Initial)', cls:'rb-no',
+    desc:'落實率低於 40%。資安治理尚在起步階段，建議制定整體改善路徑圖並尋求外部顧問協助。'};
+}
+
+// ── C方案：官方回應分佈統計 ──
+function calcDistribution(fi) {
+  const fn = CRI_DATA[fi];
+  const dist = { yes:0, yesrb:0, yescc:0, partial:0, no:0, nt:0, idk:0, na:0, total: fn.items.length };
+  fn.items.forEach((_,qi) => {
+    const v = myAnswers[`${fi}-${qi}`] || '';
+    if(v==='Yes') dist.yes++;
+    else if(v==='Yes-Risk Based') dist.yesrb++;
+    else if(v==='Yes-Compensating') dist.yescc++;
+    else if(v==='Partial') dist.partial++;
+    else if(v==='No') dist.no++;
+    else if(v==='Not Tested') dist.nt++;
+    else if(v==="I Don't Know") dist.idk++;
+    else if(v==='Not Applicable') dist.na++;
+  });
+  dist.confirmed = dist.yes + dist.yesrb + dist.yescc;
+  return dist;
+}
+
+function distBar(count, total, color) {
+  const pct = total > 0 ? Math.round(count/total*100) : 0;
+  const w = total > 0 ? (count/total*100).toFixed(1) : 0;
+  return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+    <div style="width:100%;background:var(--bg2);border-radius:2px;height:8px;overflow:hidden;">
+      <div style="width:${w}%;height:100%;background:${color};border-radius:2px;transition:width 1s ease;"></div>
+    </div>
+    <span style="font-family:var(--font-mono);font-size:11px;color:var(--text2);white-space:nowrap;width:56px;text-align:right;">${count} 題 (${pct}%)</span>
+  </div>`;
 }
 
 function renderMyResults(saved=true) {
@@ -783,33 +817,82 @@ function renderMyResults(saved=true) {
   const r = myResults;
   const m = maturityInfo(r.totalYes, r.total);
 
-  // FN cards HTML
-  const fnCards = r.fnScores.map(fs=>{
-    const cfg=FN_CONFIG[fs.fn]||{};
-    const p=Math.round(fs.yes/fs.total*100);
-    return `<div class="fn-card" style="--fc:${cfg.color}">
-      <div class="fn-card-name">${fs.fn} — ${cfg.zh}</div>
-      <div class="fn-card-score">${fs.yes}<span> / ${fs.total}</span></div>
-      <div class="fn-bar-wrap"><div class="fn-bar" style="width:${p}%"></div></div>
-      <div class="fn-card-meta">${p}% 落實 · ${fs.partial} 部分 · ${fs.no} 未落實</div>
+  // ── C方案：各面向官方回應分佈 ──
+  const distSections = CRI_DATA.map((fn, fi) => {
+    const cfg = FN_CONFIG[fn.function] || {};
+    const d = calcDistribution(fi);
+    return `
+    <div style="background:var(--card);border:1px solid var(--border2);border-radius:5px;padding:18px 20px;margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+        <span style="padding:3px 10px;border-radius:2px;font-family:var(--font-mono);font-size:10px;letter-spacing:1px;background:${cfg.color}22;color:${cfg.color};border:1px solid ${cfg.color}44;font-weight:600;">${fn.function}</span>
+        <span style="font-family:var(--font-serif);font-size:15px;font-weight:700;color:var(--text);">${cfg.zh}</span>
+        <span style="font-family:var(--font-mono);font-size:11px;color:var(--text2);margin-left:auto;">共 ${d.total} 題</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;">
+        <div>
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--green);margin-bottom:3px;letter-spacing:.5px;">✓ 是（已落實）</div>
+          ${distBar(d.yes, d.total, 'var(--green)')}
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--blue);margin-bottom:3px;margin-top:6px;letter-spacing:.5px;">R 是（基於風險）</div>
+          ${distBar(d.yesrb, d.total, 'var(--blue)')}
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--purple);margin-bottom:3px;margin-top:6px;letter-spacing:.5px;">C 是（補償控制）</div>
+          ${distBar(d.yescc, d.total, 'var(--purple)')}
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--orange);margin-bottom:3px;margin-top:6px;letter-spacing:.5px;">~ 部分落實</div>
+          ${distBar(d.partial, d.total, 'var(--orange)')}
+        </div>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--red);margin-bottom:3px;letter-spacing:.5px;">✗ 否（未落實）</div>
+          ${distBar(d.no, d.total, 'var(--red)')}
+          <div style="font-family:var(--font-mono);font-size:10px;color:#c8b43c;margin-bottom:3px;margin-top:6px;letter-spacing:.5px;">? 未經測試</div>
+          ${distBar(d.nt, d.total, '#c8b43c')}
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);margin-bottom:3px;margin-top:6px;letter-spacing:.5px;">— 不清楚</div>
+          ${distBar(d.idk, d.total, 'var(--text3)')}
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);margin-bottom:3px;margin-top:6px;letter-spacing:.5px;">N/A 不適用</div>
+          ${distBar(d.na, d.total, 'var(--border2)')}
+        </div>
+      </div>
+      <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);display:flex;gap:16px;flex-wrap:wrap;">
+        <span style="font-family:var(--font-mono);font-size:11px;color:var(--green);font-weight:600;">✓ 已確認落實：${d.confirmed} 題 (${Math.round(d.confirmed/d.total*100)}%)</span>
+        <span style="font-family:var(--font-mono);font-size:11px;color:var(--orange);">~ 部分：${d.partial} 題</span>
+        <span style="font-family:var(--font-mono);font-size:11px;color:var(--red);">✗ 未落實：${d.no} 題</span>
+        <span style="font-family:var(--font-mono);font-size:11px;color:var(--text3);">其他：${d.nt+d.idk+d.na} 題</span>
+      </div>
     </div>`;
   }).join('');
 
-  // Detail rows
+  // ── 全體分佈統計 ──
+  let totalDist = {yes:0,yesrb:0,yescc:0,partial:0,no:0,nt:0,idk:0,na:0};
+  CRI_DATA.forEach((_,fi)=>{
+    const d=calcDistribution(fi);
+    totalDist.yes+=d.yes; totalDist.yesrb+=d.yesrb; totalDist.yescc+=d.yescc;
+    totalDist.partial+=d.partial; totalDist.no+=d.no; totalDist.nt+=d.nt;
+    totalDist.idk+=d.idk; totalDist.na+=d.na;
+  });
+  const T = r.total;
+  const confirmed = totalDist.yes+totalDist.yesrb+totalDist.yescc;
+
+  // ── 各題明細 ──
   const detailRows = CRI_DATA.map((fn,fi)=>{
     const cfg=FN_CONFIG[fn.function]||{};
     const rows=fn.items.map((item,qi)=>{
       const v=myAnswers[`${fi}-${qi}`]||'—';
       const opt=RESP_OPTS.find(o=>o.val===v);
       const cls=opt?opt.rbcls:'rb-idk';
-      return `<tr><td style="color:${cfg.color};font-family:var(--font-mono);font-size:9px;">${item.profile_id}</td><td>${item.ds_name}</td><td><span class="rbadge ${cls}">${v}</span></td></tr>`;
+      return `<tr>
+        <td style="color:${cfg.color};font-family:var(--font-mono);font-size:9px;">${item.profile_id}</td>
+        <td>${item.ds_name}</td>
+        <td style="font-size:11px;color:var(--text2);">${item.statement.slice(0,60)}…</td>
+        <td><span class="rbadge ${cls}">${v}</span></td>
+      </tr>`;
     }).join('');
-    return `<div style="margin-bottom:16px;">
-      <div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;">
-        <span style="padding:2px 8px;border-radius:2px;font-family:var(--font-mono);font-size:8px;letter-spacing:1px;background:${cfg.color}22;color:${cfg.color};border:1px solid ${cfg.color}44;">${fn.function}</span>
-        <span style="font-size:12px;color:var(--text);">${cfg.zh}</span>
+    return `<div style="margin-bottom:18px;">
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:7px;">
+        <span style="padding:2px 9px;border-radius:2px;font-family:var(--font-mono);font-size:9px;letter-spacing:1px;background:${cfg.color}22;color:${cfg.color};border:1px solid ${cfg.color}44;font-weight:600;">${fn.function}</span>
+        <span style="font-size:13px;color:var(--text);font-weight:600;">${cfg.zh}</span>
       </div>
-      <table class="dtbl"><thead><tr><th>識別碼</th><th>診斷聲明名稱</th><th>回應結果</th></tr></thead><tbody>${rows}</tbody></table>
+      <table class="dtbl">
+        <thead><tr><th>識別碼</th><th>題目名稱</th><th>診斷聲明（摘要）</th><th>回應結果</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
     </div>`;
   }).join('');
 
@@ -822,29 +905,74 @@ function renderMyResults(saved=true) {
         ⚠️ 資料庫連線失敗，請確認網路後重試。（請向講師回報）
       </div>`
     }
+
+    <!-- ── 個人資訊 ── -->
     <div class="r-hero">
       <div class="r-org">${myAlias}｜${myOrgType}</div>
-      <div class="r-score">${r.totalYes}<sup>/28</sup></div>
-      <div class="r-score-sub">已確認落實（是／基於風險／補償控制）</div>
-      <div class="r-badge ${m.cls}">${m.label}</div>
-      <p class="r-summary">${m.desc}</p>
+
+      <!-- C方案：官方回應分佈總計 -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;max-width:700px;margin-left:auto;margin-right:auto;">
+        <div style="background:rgba(61,214,140,.1);border:1px solid rgba(61,214,140,.3);border-radius:4px;padding:12px;text-align:center;">
+          <div style="font-family:var(--font-mono);font-size:26px;font-weight:300;color:var(--green);">${confirmed}</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:3px;">已確認落實</div>
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--green);">${Math.round(confirmed/T*100)}%</div>
+        </div>
+        <div style="background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.3);border-radius:4px;padding:12px;text-align:center;">
+          <div style="font-family:var(--font-mono);font-size:26px;font-weight:300;color:var(--orange);">${totalDist.partial}</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:3px;">部分落實</div>
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--orange);">${Math.round(totalDist.partial/T*100)}%</div>
+        </div>
+        <div style="background:rgba(240,80,80,.1);border:1px solid rgba(240,80,80,.3);border-radius:4px;padding:12px;text-align:center;">
+          <div style="font-family:var(--font-mono);font-size:26px;font-weight:300;color:var(--red);">${totalDist.no}</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:3px;">未落實</div>
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--red);">${Math.round(totalDist.no/T*100)}%</div>
+        </div>
+        <div style="background:rgba(122,152,180,.1);border:1px solid rgba(122,152,180,.3);border-radius:4px;padding:12px;text-align:center;">
+          <div style="font-family:var(--font-mono);font-size:26px;font-weight:300;color:var(--text3);">${totalDist.nt+totalDist.idk+totalDist.na}</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:3px;">其他（未測/不適用）</div>
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);">${Math.round((totalDist.nt+totalDist.idk+totalDist.na)/T*100)}%</div>
+        </div>
+      </div>
+
+      <!-- B方案：課堂參考成熟度 -->
+      <div style="background:var(--card2);border:1px solid var(--border2);border-radius:5px;padding:14px 20px;max-width:640px;margin:0 auto 10px;">
+        <div style="font-size:10px;font-family:var(--font-mono);color:var(--gold);letter-spacing:1px;margin-bottom:8px;">★ 課堂參考成熟度（非 CRI 官方判定，基於落實率簡化計算）</div>
+        <div class="r-badge ${m.cls}" style="margin-bottom:8px;">${m.label}</div>
+        <p style="font-size:12px;color:var(--text2);line-height:1.7;">${m.desc}</p>
+        <div style="font-size:10px;color:var(--text3);margin-top:8px;font-family:var(--font-mono);">
+          ※ 官方成熟度判定：請對照 CRI Profile Maturity Model v2.1 文件，依各面向回應分佈自行評估。
+        </div>
+      </div>
     </div>
-    <div class="r-section-title">七大功能面向結果</div>
-    <div class="fn-cards">${fnCards}</div>
-    <div class="chart-box">
+
+    <!-- ── C方案：官方各面向回應分佈 ── -->
+    <div class="r-section-title" style="font-family:var(--font-serif);font-size:17px;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:10px;font-weight:700;">
+      各面向回應分佈（CRI 官方格式）
+      <span style="flex:1;height:1px;background:var(--border2);display:inline-block;"></span>
+    </div>
+    ${distSections}
+
+    <!-- ── 雷達圖 ── -->
+    <div class="chart-box" style="margin-top:20px;">
       <div class="chart-title">落實情形雷達圖</div>
       <canvas id="myRadar" width="480" height="360"></canvas>
     </div>
+
     <div class="sep"></div>
-    <div class="r-section-title">各題項回應明細</div>
+
+    <!-- ── 各題明細 ── -->
+    <div class="r-section-title" style="font-family:var(--font-serif);font-size:17px;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:10px;font-weight:700;">
+      各題項回應明細
+      <span style="flex:1;height:1px;background:var(--border2);display:inline-block;"></span>
+    </div>
     ${detailRows}
-    <div style="display:flex;gap:10px;margin-top:28px;flex-wrap:wrap;">
+
+    <div style="display:flex;gap:10px;margin-top:32px;flex-wrap:wrap;">
       <button class="btn btn-ghost" onclick="goBackToQ()">← 返回修改</button>
       <button class="btn btn-primary" onclick="goDash()">查看同業比較 →</button>
       <button class="btn btn-ghost" onclick="window.print()">列印報告</button>
     </div>`;
 
-  // Draw my radar
   setTimeout(()=>drawRadar('myRadar', r.fnScores, null), 100);
 }
 
